@@ -1,13 +1,16 @@
 Summary: Experimental HTTP/2 client, server and proxy
 Name: nghttp2
 Version: 1.43.0
-Release: 5%{?dist}.1
+Release: 5%{?dist}.3
 License: MIT
 URL: https://nghttp2.org/
 Source0: https://github.com/tatsuhiro-t/nghttp2/releases/download/v%{version}/nghttp2-%{version}.tar.xz
 
 # fix HTTP/2 Rapid Reset (CVE-2023-44487)
 Patch1:   0001-nghttp2-1.43.0-CVE-2023-44487.patch
+
+# fix CONTINUATION frames DoS (CVE-2024-28182, CVE-2024-27316)
+Patch2:   0002-nghttp2-1.43.0-CVE-2024-28182-CVE-2024-27316.patch
 
 BuildRequires: automake
 BuildRequires: libtool
@@ -122,6 +125,9 @@ export "LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir}:$LD_LIBRARY_PATH"
 
 
 %changelog
+* Wed Apr 10 2024 Jan Macku <jamacku@redhat.com> - 1.43.0-5.2
+- fix CONTINUATION frames DoS (CVE-2024-28182, CVE-2024-27316)
+
 * Fri Oct 13 2023 Jan Macku <jamacku@redhat.com> - 1.43.0-5.1
 - fix HTTP/2 Rapid Reset (CVE-2023-44487)
 
