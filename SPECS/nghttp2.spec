@@ -7,7 +7,7 @@
 Summary: Experimental HTTP/2 client, server and proxy
 Name: nghttp2
 Version: 1.64.0
-Release: 2%{?dist}
+Release: 2%{?dist}.1
 
 # Parts of ruby bindings are additionally under GPL-2.0-or-later, MIT and
 # HPND-Kevlin-Henney but they are NOT shipped.
@@ -17,6 +17,9 @@ URL: https://nghttp2.org/
 Source0: https://github.com/tatsuhiro-t/nghttp2/releases/download/v%{version}/nghttp2-%{version}.tar.xz
 Source1: https://github.com/%{name}/%{name}/releases/download/v%{version}/%{name}-%{version}.tar.xz.asc
 Source2: tatsuhiro-t.pgp
+
+# fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
+Patch1:   0001-nghttp2-1.64.0-CVE-2026-27135.patch
 
 BuildRequires: CUnit-devel
 BuildRequires: c-ares-devel
@@ -212,6 +215,9 @@ popd
 
 
 %changelog
+* Thu Apr 09 2026 Jan Macku <jamacku@redhat.com> 1.64.0-2.1
+- fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
+
 * Tue Oct 29 2024 Troy Dawson <tdawson@redhat.com> - 1.64.0-2
 - Bump release for October 2024 mass rebuild:
   Resolves: RHEL-64018
