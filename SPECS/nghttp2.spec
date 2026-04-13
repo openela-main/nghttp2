@@ -1,7 +1,7 @@
 Summary: Experimental HTTP/2 client, server and proxy
 Name: nghttp2
 Version: 1.33.0
-Release: 6%{?dist}.1
+Release: 6%{?dist}.2
 License: MIT
 Group: Applications/Internet
 URL: https://nghttp2.org/
@@ -18,6 +18,9 @@ Patch3: 0003-nghttp2-1.33.0-CVE-2023-44487.patch
 
 # fix CONTINUATION frames DoS (CVE-2024-28182, CVE-2024-27316)
 Patch4: 0004-nghttp2-1.33.0-CVE-2024-28182.patch
+
+# fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
+Patch5: 0005-nghttp2-1.33.0-CVE-2026-27135.patch
 
 BuildRequires: automake
 BuildRequires: libtool
@@ -64,6 +67,7 @@ for building applications with libnghttp2.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 autoreconf -fiv
 
 # make fetch-ocsp-response use Python 3
@@ -135,7 +139,10 @@ make %{?_smp_mflags} check
 
 
 %changelog
-* Mon Apr 10 2024 Jan Macku <jamacku@redhat.com> - 1.33.0-6.1
+* Thu Apr 09 2026 Jan Macku <jamacku@redhat.com> - 1.33.0-6.2
+- fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
+
+* Wed Apr 10 2024 Jan Macku <jamacku@redhat.com> - 1.33.0-6.1
 - fix CONTINUATION frames DoS (CVE-2024-27316)
 
 * Mon Apr 08 2024 Jan Macku <jamacku@redhat.com> - 1.33.0-6
