@@ -6,8 +6,8 @@
 
 Summary: Experimental HTTP/2 client, server and proxy
 Name: nghttp2
-Version: 1.64.0
-Release: 2%{?dist}.1
+Version: 1.68.0
+Release: 3%{?dist}.1
 
 # Parts of ruby bindings are additionally under GPL-2.0-or-later, MIT and
 # HPND-Kevlin-Henney but they are NOT shipped.
@@ -19,7 +19,12 @@ Source1: https://github.com/%{name}/%{name}/releases/download/v%{version}/%{name
 Source2: tatsuhiro-t.pgp
 
 # fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
-Patch1:   0001-nghttp2-1.64.0-CVE-2026-27135.patch
+Patch001: 0001-nghttp2-1.68.0-Check-nghttp2_is_fatal-first.patch
+Patch002: 0002-nghttp2-1.68.0-Fix-missing-iframe-state-validations-to-avoid-assert.patch
+
+# Make X25519MLKEM768 the default TLS key exchange group in nghttpd and nghttpx
+# https://issues.redhat.com/browse/RHEL-103655
+Patch100: 0100-nghttp2-1.64.0-pqc-add-X25519MLKEM768-as-the-default-TLS-key-exchan.patch
 
 BuildRequires: CUnit-devel
 BuildRequires: c-ares-devel
@@ -175,7 +180,6 @@ popd
 %{_bindir}/nghttp
 %{_bindir}/nghttpd
 %{_bindir}/nghttpx
-%{_datadir}/nghttp2
 %{_mandir}/man1/h2load.1*
 %{_mandir}/man1/nghttp.1*
 %{_mandir}/man1/nghttpd.1*
@@ -201,7 +205,6 @@ popd
 %{mingw32_libdir}/libnghttp2.dll.a
 %{mingw32_libdir}/pkgconfig/libnghttp2.pc
 %{mingw32_includedir}/nghttp2/
-%{mingw32_datadir}/nghttp2/
 
 %files -n mingw64-libnghttp2
 %license COPYING
@@ -210,13 +213,21 @@ popd
 %{mingw64_libdir}/libnghttp2.dll.a
 %{mingw64_libdir}/pkgconfig/libnghttp2.pc
 %{mingw64_includedir}/nghttp2/
-%{mingw64_datadir}/nghttp2/
 %endif
 
 
 %changelog
-* Thu Apr 09 2026 Jan Macku <jamacku@redhat.com> 1.64.0-2.1
+* Tue Mar 31 2026 Jan Macku <jamacku@redhat.com> 1.68.0-3.1
 - fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
+
+* Wed Feb 11 2026 Jan Macku <jamacku@redhat.com> 1.68.0-3
+- Spec bump (RHEL-103655)
+
+* Mon Feb 09 2026 Jan Macku <jamacku@redhat.com> 1.68.0-2
+- PQC: make X25519MLKEM768 the default TLS key exchange group in nghttpd and nghttpx (RHEL-103655)
+
+* Mon Feb 09 2026 Jan Macku <jamacku@redhat.com> 1.68.0-1
+- update to the latest upstream release (RHEL-143723)
 
 * Tue Oct 29 2024 Troy Dawson <tdawson@redhat.com> - 1.64.0-2
 - Bump release for October 2024 mass rebuild:

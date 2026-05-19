@@ -1,0 +1,145 @@
+From baad2c45f30e31566c08d393779e4e9517ce7c80 Mon Sep 17 00:00:00 2001
+From: Jan Macku <jamacku@redhat.com>
+Date: Tue, 10 Feb 2026 13:06:41 +0100
+Subject: [PATCH] pqc: add X25519MLKEM768 as the default TLS key exchange group
+
+Prioritize X25519MLKEM768 (post-quantum hybrid key exchange) in the
+default groups configuration for enhanced security against future
+quantum computing threats.
+
+The new default groups order is:
+X25519MLKEM768:X25519:P-256:P-384:P-521
+
+Signed-off-by: Jan Macku <jamacku@redhat.com>
+---
+ doc/h2load.1      | 2 +-
+ doc/h2load.1.rst  | 2 +-
+ doc/nghttpd.1     | 2 +-
+ doc/nghttpd.1.rst | 2 +-
+ doc/nghttpx.1     | 2 +-
+ doc/nghttpx.1.rst | 2 +-
+ src/HttpServer.cc | 2 +-
+ src/h2load.cc     | 2 +-
+ src/shrpx.cc      | 2 +-
+ 9 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/doc/h2load.1 b/doc/h2load.1
+index 9a86e51..e202b4b 100644
+--- a/doc/h2load.1
++++ b/doc/h2load.1
+@@ -325,7 +325,7 @@ Specify request  per second for each  client.  \fI\%\-\-rps\fP and
+ .B \-\-groups=<GROUPS>
+ Specify the supported groups.
+ .sp
+-Default: \fBX25519:P\-256:P\-384:P\-521\fP
++Default: \fBX25519MLKEM768:X25519:P\-256:P\-384:P\-521\fP
+ .UNINDENT
+ .INDENT 0.0
+ .TP
+diff --git a/doc/h2load.1.rst b/doc/h2load.1.rst
+index 5f98ec4..4ab9494 100644
+--- a/doc/h2load.1.rst
++++ b/doc/h2load.1.rst
+@@ -276,7 +276,7 @@ OPTIONS
+ 
+     Specify the supported groups.
+ 
+-    Default: ``X25519:P-256:P-384:P-521``
++    Default: ``X25519MLKEM768:X25519:P-256:P-384:P-521``
+ 
+ .. option:: --no-udp-gso
+ 
+diff --git a/doc/nghttpd.1 b/doc/nghttpd.1
+index 2153208..a9e9328 100644
+--- a/doc/nghttpd.1
++++ b/doc/nghttpd.1
+@@ -207,7 +207,7 @@ Don\(aqt send content\-length header field.
+ .B \-\-groups=<GROUPS>
+ Specify the supported groups.
+ .sp
+-Default: \fBX25519:P\-256:P\-384:P\-521\fP
++Default: \fBX25519MLKEM768:X25519:P\-256:P\-384:P\-521\fP
+ .UNINDENT
+ .INDENT 0.0
+ .TP
+diff --git a/doc/nghttpd.1.rst b/doc/nghttpd.1.rst
+index a4b07a4..2271a00 100644
+--- a/doc/nghttpd.1.rst
++++ b/doc/nghttpd.1.rst
+@@ -163,7 +163,7 @@ OPTIONS
+ 
+     Specify the supported groups.
+ 
+-    Default: ``X25519:P-256:P-384:P-521``
++    Default: ``X25519MLKEM768:X25519:P-256:P-384:P-521``
+ 
+ .. option:: --ktls
+ 
+diff --git a/doc/nghttpx.1 b/doc/nghttpx.1
+index 05b1db6..6b45562 100644
+--- a/doc/nghttpx.1
++++ b/doc/nghttpx.1
+@@ -731,7 +731,7 @@ in the preference order.  The supported curves depend on
+ the  linked  OpenSSL  library.  This  function  requires
+ OpenSSL >= 1.0.2.
+ .sp
+-Default: \fBX25519:P\-256:P\-384:P\-521\fP
++Default: \fBX25519MLKEM768:X25519:P\-256:P\-384:P\-521\fP
+ .UNINDENT
+ .INDENT 0.0
+ .TP
+diff --git a/doc/nghttpx.1.rst b/doc/nghttpx.1.rst
+index 825bd9f..7d5621f 100644
+--- a/doc/nghttpx.1.rst
++++ b/doc/nghttpx.1.rst
+@@ -683,7 +683,7 @@ SSL/TLS
+     the  linked  OpenSSL  library.  This  function  requires
+     OpenSSL >= 1.0.2.
+ 
+-    Default: ``X25519:P-256:P-384:P-521``
++    Default: ``X25519MLKEM768:X25519:P-256:P-384:P-521``
+ 
+ .. option:: -k, --insecure
+ 
+diff --git a/src/HttpServer.cc b/src/HttpServer.cc
+index 47cb4c4..60bcacd 100644
+--- a/src/HttpServer.cc
++++ b/src/HttpServer.cc
+@@ -102,7 +102,7 @@ void print_session_id(int64_t id) { std::cout << "[id=" << id << "] "; }
+ 
+ Config::Config()
+   : mime_types_file("/etc/mime.types"),
+-    groups("X25519:P-256:P-384:P-521"sv),
++    groups("X25519MLKEM768:X25519:P-256:P-384:P-521"sv),
+     stream_read_timeout(1_min),
+     stream_write_timeout(1_min),
+     data_ptr(nullptr),
+diff --git a/src/h2load.cc b/src/h2load.cc
+index a8db23b..6b0ed7d 100644
+--- a/src/h2load.cc
++++ b/src/h2load.cc
+@@ -106,7 +106,7 @@ Config::Config()
+   : ciphers(tls::DEFAULT_CIPHER_LIST),
+     tls13_ciphers("TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_"
+                   "CHACHA20_POLY1305_SHA256:TLS_AES_128_CCM_SHA256"),
+-    groups("X25519:P-256:P-384:P-521"),
++    groups("X25519MLKEM768:X25519:P-256:P-384:P-521"),
+     data_length(-1),
+     data(nullptr),
+     addrs(nullptr),
+diff --git a/src/shrpx.cc b/src/shrpx.cc
+index f92c825..d5f1f61 100644
+--- a/src/shrpx.cc
++++ b/src/shrpx.cc
+@@ -1662,7 +1662,7 @@ void fill_default_config(Config *config) {
+   tlsconf.max_proto_version =
+     tls::proto_version_from_string(DEFAULT_TLS_MAX_PROTO_VERSION);
+   tlsconf.max_early_data = 16_k;
+-  tlsconf.groups = "X25519:P-256:P-384:P-521"sv;
++  tlsconf.groups = "X25519MLKEM768:X25519:P-256:P-384:P-521"sv;
+ 
+   auto &httpconf = config->http;
+   httpconf.server_name = "nghttpx"sv;
+-- 
+2.53.0
+
