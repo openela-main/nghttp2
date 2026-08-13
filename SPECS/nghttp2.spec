@@ -1,7 +1,7 @@
 Summary: Experimental HTTP/2 client, server and proxy
 Name: nghttp2
 Version: 1.43.0
-Release: 6%{?dist}.1
+Release: 6%{?dist}.2
 License: MIT
 URL: https://nghttp2.org/
 Source0: https://github.com/tatsuhiro-t/nghttp2/releases/download/v%{version}/nghttp2-%{version}.tar.xz
@@ -14,6 +14,9 @@ Patch2:   0002-nghttp2-1.43.0-CVE-2024-28182-CVE-2024-27316.patch
 
 # fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
 Patch3:   0003-nghttp2-1.43.0-CVE-2026-27135.patch
+
+# fix HTTP Request/Response Smuggling and Response-Queue Poisoning via ambiguous HTTP/1.1 Upgrade requests (CVE-2026-58055)
+Patch4:   0004-nghttp2-1.43.0-CVE-2026-58055.patch
 
 BuildRequires: automake
 BuildRequires: libtool
@@ -128,6 +131,9 @@ export "LD_LIBRARY_PATH=$RPM_BUILD_ROOT%{_libdir}:$LD_LIBRARY_PATH"
 
 
 %changelog
+* Wed Aug 12 2026 Jan Macku <jamacku@redhat.com> - 1.43.0-6.2
+- fix HTTP Request/Response Smuggling and Response-Queue Poisoning via ambiguous HTTP/1.1 Upgrade requests (CVE-2026-58055)
+
 * Wed Apr 01 2026 Jan Macku <jamacku@redhat.com> - 1.43.0-6.1
 - fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
 
