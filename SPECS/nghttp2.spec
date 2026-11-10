@@ -7,7 +7,7 @@
 Summary: Experimental HTTP/2 client, server and proxy
 Name: nghttp2
 Version: 1.68.0
-Release: 3%{?dist}.2
+Release: 6%{?dist}
 
 # Parts of ruby bindings are additionally under GPL-2.0-or-later, MIT and
 # HPND-Kevlin-Henney but they are NOT shipped.
@@ -22,8 +22,10 @@ Source2: tatsuhiro-t.pgp
 Patch001: 0001-nghttp2-1.68.0-Check-nghttp2_is_fatal-first.patch
 Patch002: 0002-nghttp2-1.68.0-Fix-missing-iframe-state-validations-to-avoid-assert.patch
 
+Patch003: 0003-nghttp2-1.68.0-nghttpd-nghttpx-Accept-at-most-10-connections-per-lo.patch
+
 # fix HTTP Request/Response Smuggling and Response-Queue Poisoning via ambiguous HTTP/1.1 Upgrade requests (CVE-2026-58055)
-Patch003: 0003-nghttp2-1.68.0-CVE-2026-58055.patch
+Patch004: 0004-nghttp2-1.68.0-CVE-2026-58055.patch
 
 # Make X25519MLKEM768 the default TLS key exchange group in nghttpd and nghttpx
 # https://issues.redhat.com/browse/RHEL-103655
@@ -220,10 +222,13 @@ popd
 
 
 %changelog
-* Mon Aug 10 2026 Jan Macku <jamacku@redhat.com> 1.68.0-3.2
+* Mon Aug 10 2026 Jan Macku <jamacku@redhat.com> 1.68.0-6
 - fix HTTP Request/Response Smuggling and Response-Queue Poisoning via ambiguous HTTP/1.1 Upgrade requests (CVE-2026-58055)
 
-* Tue Mar 31 2026 Jan Macku <jamacku@redhat.com> 1.68.0-3.1
+* Thu Jul 16 2026 Jan Macku <jamacku@redhat.com> 1.68.0-5
+- fix nghttpd, nghttpx: Accept at most 10 connections per loop (RHEL-192117)
+
+* Tue Mar 31 2026 Jan Macku <jamacku@redhat.com> 1.68.0-4
 - fix Denial of service: Assertion failure due to the missing state validation (CVE-2026-27135)
 
 * Wed Feb 11 2026 Jan Macku <jamacku@redhat.com> 1.68.0-3

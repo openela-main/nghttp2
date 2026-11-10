@@ -1,0 +1,100 @@
+From fdf2122f7c47b3b46a9106a5cfd3f6b6ac6a202f Mon Sep 17 00:00:00 2001
+From: Tatsuhiro Tsujikawa <tatsuhiro.t@gmail.com>
+Date: Wed, 11 Mar 2026 23:00:20 +0900
+Subject: [PATCH] nghttpd, nghttpx: Accept at most 10 connections per loop
+
+(cherry picked from commit 726dce78cd167fc44983d14ea9625db7c8805b4c)
+---
+ src/HttpServer.cc           |  4 +++-
+ src/shrpx_accept_handler.cc | 19 ++++++++++++++-----
+ src/shrpx_accept_handler.h  |  2 +-
+ 3 files changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/src/HttpServer.cc b/src/HttpServer.cc
+index 60bcacdb..96c7dcd2 100644
+--- a/src/HttpServer.cc
++++ b/src/HttpServer.cc
+@@ -1906,7 +1906,9 @@ public:
+     ev_io_start(sessions_->get_loop(), &w_);
+   }
+   void accept_connection() {
+-    for (;;) {
++    constexpr size_t max_num_accept = 10;
++
++    for (size_t i = 0; i < max_num_accept; ++i) {
+ #ifdef HAVE_ACCEPT4
+       auto fd = accept4(fd_, nullptr, nullptr, SOCK_NONBLOCK);
+ #else  // !defined(HAVE_ACCEPT4)
+diff --git a/src/shrpx_accept_handler.cc b/src/shrpx_accept_handler.cc
+index 5de5bb0f..d01f393e 100644
+--- a/src/shrpx_accept_handler.cc
++++ b/src/shrpx_accept_handler.cc
+@@ -43,7 +43,14 @@ namespace shrpx {
+ namespace {
+ void acceptcb(struct ev_loop *loop, ev_io *w, int revent) {
+   auto h = static_cast<AcceptHandler *>(w->data);
+-  h->accept_connection();
++
++  constexpr size_t max_num_accept = 10;
++
++  for (size_t i = 0; i < max_num_accept; ++i) {
++    if (h->accept_connection() != 0) {
++      break;
++    }
++  }
+ }
+ } // namespace
+ 
+@@ -59,7 +66,7 @@ AcceptHandler::~AcceptHandler() {
+   close(faddr_->fd);
+ }
+ 
+-void AcceptHandler::accept_connection() {
++int AcceptHandler::accept_connection() {
+   sockaddr_union sockaddr;
+   socklen_t addrlen = sizeof(sockaddr);
+ 
+@@ -83,15 +90,15 @@ void AcceptHandler::accept_connection() {
+     case EHOSTUNREACH:
+     case EOPNOTSUPP:
+     case ENETUNREACH:
+-      return;
++      return -1;
+     case EMFILE:
+     case ENFILE:
+       LOG(WARN) << "acceptor: running out file descriptor; disable acceptor "
+                    "temporarily";
+       worker_->sleep_listener(get_config()->conn.listener.timeout.sleep);
+-      return;
++      return -1;
+     default:
+-      return;
++      return -1;
+     }
+   }
+ 
+@@ -101,6 +108,8 @@ void AcceptHandler::accept_connection() {
+ #endif // !defined(HAVE_ACCEPT4)
+ 
+   worker_->handle_connection(cfd, &sockaddr.sa, addrlen, faddr_);
++
++  return 0;
+ }
+ 
+ void AcceptHandler::enable() { ev_io_start(worker_->get_loop(), &wev_); }
+diff --git a/src/shrpx_accept_handler.h b/src/shrpx_accept_handler.h
+index 0271824a..47074829 100644
+--- a/src/shrpx_accept_handler.h
++++ b/src/shrpx_accept_handler.h
+@@ -38,7 +38,7 @@ class AcceptHandler {
+ public:
+   AcceptHandler(Worker *worker, const UpstreamAddr *faddr);
+   ~AcceptHandler();
+-  void accept_connection();
++  int accept_connection();
+   void enable();
+   void disable();
+   int get_fd() const;
+-- 
+2.55.0
+
